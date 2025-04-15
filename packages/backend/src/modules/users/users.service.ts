@@ -9,12 +9,14 @@ import aqp from 'api-query-params';
 import { CreateAuthDto } from '@/auth/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<User>,
+    private mailerService: MailerService,
   ) {}
 
   isEmailExists = async (email: string) => {
@@ -101,15 +103,26 @@ export class UsersService {
     }
 
     const hashedPassword = await hashPassword(password);
+    const codeId = uuidv4();
     const user = await this.userModel.create({
       password: hashedPassword,
       email,
       isActive: false,
-      codeId: uuidv4(),
-      codeExpired: dayjs().add(3, 'days'),
+      codeId,
+      codeExpired: dayjs().add(5, 'minutes'),
       ...rest,
     });
 
-    return user;
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'Activate your account',
+      template: 'register',
+      context: {
+        name: user.name,
+        activationCode: codeId,
+      },
+    });
+
+    return { _id: user._id };
   }
 }

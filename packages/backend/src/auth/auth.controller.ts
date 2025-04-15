@@ -32,8 +32,12 @@ export class AuthController {
       this.mailerService.sendMail({
         to: 'vanthuanquan@gmail.com',
         subject: 'Test email',
-        html: '<p>Test</p>',
         text: 'Test',
+        template: 'register',
+        context: {
+          name: 'John Doe',
+          activationCode: '123456',
+        },
       });
       return 'ok';
     } catch (error) {
