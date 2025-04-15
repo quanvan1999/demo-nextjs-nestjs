@@ -6,6 +6,9 @@ import { User } from './schemas/user.schema';
 import { Model, isValidObjectId } from 'mongoose';
 import { hashPassword } from '@/utils';
 import aqp from 'api-query-params';
+import { CreateAuthDto } from '@/auth/dto/create-auth.dto';
+import { v4 as uuidv4 } from 'uuid';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UsersService {
@@ -86,5 +89,27 @@ export class UsersService {
     const result = await this.userModel.deleteOne({ _id });
 
     return result.deletedCount;
+  }
+
+  async register(registerDto: CreateAuthDto) {
+    const { email, password, ...rest } = registerDto;
+
+    const isEmailExists = await this.isEmailExists(email);
+
+    if (isEmailExists) {
+      throw new BadRequestException('Email already exists');
+    }
+
+    const hashedPassword = await hashPassword(password);
+    const user = await this.userModel.create({
+      password: hashedPassword,
+      email,
+      isActive: false,
+      codeId: uuidv4(),
+      codeExpired: dayjs().add(3, 'days'),
+      ...rest,
+    });
+
+    return user;
   }
 }
