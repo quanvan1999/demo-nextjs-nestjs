@@ -12,6 +12,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { MenuItemsModule } from './modules/menu.items/menu.items.module';
 import { MenuItemOptionsModule } from './modules/menu.item.options/menu.item.options.module';
 import { OrderDetailModule } from './modules/order.detail/order.detail.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { OrderDetailModule } from './modules/order.detail/order.detail.module';
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

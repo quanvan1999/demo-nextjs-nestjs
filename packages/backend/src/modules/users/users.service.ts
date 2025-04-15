@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
-import { Model } from 'mongoose';
+import { Model, isValidObjectId } from 'mongoose';
 import { hashPassword } from '@/utils';
 import aqp from 'api-query-params';
 
@@ -64,15 +64,27 @@ export class UsersService {
     return { result, totalPages, totalItems };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(_id: string) {
+    const user = await this.userModel.find({ _id });
+
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findByEmail(email: string) {
+    const user = await this.userModel.findOne({ email });
+
+    return user;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(updateUserDto: UpdateUserDto) {
+    return await this.userModel.updateOne({ _id: updateUserDto._id }, { ...updateUserDto });
+  }
+
+  async remove(_id: string) {
+    if (!isValidObjectId(_id)) throw new BadRequestException('Invalid user id');
+
+    const result = await this.userModel.deleteOne({ _id });
+
+    return result.deletedCount;
   }
 }
