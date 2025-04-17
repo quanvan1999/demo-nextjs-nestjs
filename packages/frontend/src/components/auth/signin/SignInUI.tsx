@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -45,25 +45,21 @@ const SignInUI = () => {
         redirect: false,
       });
 
-      console.log('Sign in result:', result);
+      console.log(result);
 
       if (!result) {
         setError('Authentication failed. Please try again.');
         return;
       }
 
-      if (result.error) {
-        if (result.error === 'CredentialsSignin') {
-          setError('Invalid email or password');
-        } else {
-          setError(result.error);
-        }
+      if (result.code) {
+        setError(result.code);
         return;
       }
 
-      if (result.ok) {
-        router.push('/dashboard');
-      }
+      // if (result.ok) {
+      //   router.push('/dashboard');
+      // }
     } catch (error: any) {
       console.error('Sign in error:', error);
       setError('An unexpected error occurred. Please try again.');

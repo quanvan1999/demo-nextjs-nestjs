@@ -2,14 +2,14 @@ import NextAuth, { DefaultSession } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 
 interface User {
-  id: string;
   _id: string;
-  username: string;
+  name: string;
   email: string;
   emailVerified: Date | null;
   isVerify: boolean;
   type: string;
   role: string;
+  access_token: string;
 }
 
 declare module 'next-auth' {

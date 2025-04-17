@@ -56,9 +56,9 @@ async function bootstrap() {
       tabWidth: 2,
       printWidth: 100,
       parser: 'typescript',
-      unwrapResponseData: true,
     },
     httpClientType: 'axios',
+    unwrapResponseData: true,
   });
 
   app.useGlobalPipes(

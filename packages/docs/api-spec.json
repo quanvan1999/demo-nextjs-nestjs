@@ -1028,7 +1028,14 @@
         "parameters": [],
         "responses": {
           "201": {
-            "description": ""
+            "description": "User successfully registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserLoginDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1214,6 +1221,37 @@
       "UpdateReviewDto": {
         "type": "object",
         "properties": {}
+      },
+      "UserLoginDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "access_token": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "_id",
+          "email",
+          "name",
+          "role",
+          "access_token",
+          "password"
+        ]
       },
       "CreateAuthDto": {
         "type": "object",

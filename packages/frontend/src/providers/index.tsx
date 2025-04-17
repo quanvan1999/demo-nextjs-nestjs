@@ -1,21 +1,20 @@
-import { setConfig } from '@/api/client';
-import { BASE_URL } from '@/constants';
-import React, { useEffect } from 'react';
+import { SessionProvider } from 'next-auth/react';
+import React from 'react';
 
 type Props = {
   children: React.ReactNode;
 };
 
 const Providers = ({ children }: Props) => {
-  useEffect(() => {
-    setConfig({
-      baseURL: BASE_URL,
-      //   onRequest: intercepRequest,
-      //   onError: intercepError(instance) as any,
-    });
-  }, []);
+  // useEffect(() => {
+  //   setConfig({
+  //     baseURL: BASE_URL,
+  //     //   onRequest: intercepRequest,
+  //     //   onError: intercepError(instance) as any,
+  //   });
+  // }, []);
 
-  return children;
+  return <SessionProvider>{children}</SessionProvider>;
 };
 
 export default Providers;

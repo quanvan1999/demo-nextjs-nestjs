@@ -2,9 +2,9 @@ import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { Public } from './decorator/customize';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { CreateAuthDto, UserLoginDto } from './dto/create-auth.dto';
 import { MailerService } from '@nestjs-modules/mailer';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -17,9 +17,16 @@ export class AuthController {
   @Post('login')
   @Public()
   @UseGuards(LocalAuthGuard)
-  handleLogin(@Request() req: any) {
-    console.log(req.user);
-    return this.authService.login(req.user);
+  @ApiResponse({
+    status: 201,
+    description: 'User successfully registered',
+    type: UserLoginDto,
+  })
+  async handleLogin(@Request() { user }: { user: UserLoginDto }) {
+    const result = await this.authService.login(user);
+
+    console.log(result);
+    return result;
   }
 
   @Post('register')

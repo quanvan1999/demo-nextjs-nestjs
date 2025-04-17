@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '@/modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { comparePassword } from '@/utils';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { CreateAuthDto, UserLoginDto } from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,10 +19,19 @@ export class AuthService {
     return user;
   }
 
-  async login(user: any) {
+  async login(user: UserLoginDto) {
     const payload = { username: user.email, sub: user._id };
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { role, _id, email, name } = user;
+
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: accessToken,
+      email,
+      name,
+      role,
+      _id,
     };
   }
 
