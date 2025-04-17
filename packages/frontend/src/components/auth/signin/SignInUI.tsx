@@ -9,32 +9,67 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  rememberMe: z.boolean().optional(),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 type SignInFormData = z.infer<typeof signInSchema>;
 
 const SignInUI = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
     },
   });
 
-  const handleSubmit = (data: SignInFormData) => {
-    console.log('Login form submitted:', data);
-    // TODO: Implement login logic
+  const handleSubmit = async (data: SignInFormData) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+
+      const result = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      console.log('Sign in result:', result);
+
+      if (!result) {
+        setError('Authentication failed. Please try again.');
+        return;
+      }
+
+      if (result.error) {
+        if (result.error === 'CredentialsSignin') {
+          setError('Invalid email or password');
+        } else {
+          setError(result.error);
+        }
+        return;
+      }
+
+      if (result.ok) {
+        router.push('/dashboard');
+      }
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,9 +149,11 @@ const SignInUI = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full bg-[#18181B] text-white hover:bg-[#18181B]/90">
-              Sign in
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
+
+            {error && <div className="mt-2 text-center text-sm text-destructive">{error}</div>}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

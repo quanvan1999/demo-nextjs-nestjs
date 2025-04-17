@@ -4,7 +4,9 @@ import { LocalAuthGuard } from './passport/local-auth.guard';
 import { Public } from './decorator/customize';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -15,7 +17,8 @@ export class AuthController {
   @Post('login')
   @Public()
   @UseGuards(LocalAuthGuard)
-  handleLogin(@Request() req) {
+  handleLogin(@Request() req: any) {
+    console.log(req.user);
     return this.authService.login(req.user);
   }
 
