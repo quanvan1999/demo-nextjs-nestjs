@@ -72,6 +72,13 @@ async function bootstrap() {
     exclude: [''],
   });
 
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    preflightContinue: false,
+  });
+
   await app.listen(port, () => {
     Logger.log(`🚀 API server listenning on http://localhost:${port}/api`, 'Bootstrap');
   });

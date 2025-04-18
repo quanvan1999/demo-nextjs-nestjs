@@ -1,17 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { useTheme } from '@/components/theme/theme-provider';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Mail, User } from 'lucide-react';
 import Link from 'next/link';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { client, CreateAuthDto, RegisterResponseDto, request } from '@/api';
+import { BASE_URL } from '@/constants';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { AxiosError } from 'axios';
 
 const signUpSchema = z
   .object({
@@ -36,9 +40,9 @@ const signUpSchema = z
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
 const SignUpUI = () => {
-  const { theme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -51,9 +55,25 @@ const SignUpUI = () => {
     },
   });
 
-  const handleSubmit = (data: SignUpFormData) => {
-    console.log('Signup form submitted:', data);
-    // TODO: Implement signup logic
+  const { acceptTerms } = useWatch({ control: form.control });
+
+  const handleSubmit = async (data: SignUpFormData) => {
+    try {
+      const user = await client.auth.authControllerHandleRegister({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+      });
+
+      console.log(user);
+
+      if (!user || !user._id) return;
+
+      router.push(`/verify/${user._id}`);
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || 'Registration failed. Please try again.');
+    }
   };
 
   return (
@@ -214,7 +234,7 @@ const SignUpUI = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button disabled={!acceptTerms} type="submit" className="w-full">
               Create account
             </Button>
 

@@ -6,7 +6,7 @@ import { User } from './schemas/user.schema';
 import { Model, isValidObjectId } from 'mongoose';
 import { hashPassword } from '@/utils';
 import aqp from 'api-query-params';
-import { CreateAuthDto } from '@/auth/dto/create-auth.dto';
+import { CheckCodeDto, CreateAuthDto } from '@/auth/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -120,9 +120,26 @@ export class UsersService {
       context: {
         name: user.name,
         activationCode: codeId,
+        _id: user._id,
       },
     });
 
     return { _id: user._id };
+  }
+
+  async checkCode(checkCodeDto: CheckCodeDto) {
+    const { code, _id } = checkCodeDto;
+
+    const user = await this.userModel.findOne({ _id, codeId: code });
+
+    if (!user) {
+      throw new BadRequestException('Invalid code');
+    }
+
+    await this.userModel.updateOne({ _id }, { isActive: true });
+
+    return {
+      _id: user._id,
+    };
   }
 }

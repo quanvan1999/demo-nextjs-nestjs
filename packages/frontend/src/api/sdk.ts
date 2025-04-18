@@ -73,6 +73,15 @@ export interface CreateAuthDto {
   name: string;
 }
 
+export interface RegisterResponseDto {
+  _id: string;
+}
+
+export interface CheckCodeDto {
+  code: string;
+  _id: string;
+}
+
 import axios, { AxiosInstance, AxiosRequestConfig, HeadersDefaults, ResponseType } from 'axios';
 
 export type QueryParamsType = Record<string | number, any>;
@@ -957,11 +966,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/auth/register
      */
     authControllerHandleRegister: (data: CreateAuthDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<RegisterResponseDto, any>({
         path: `/auth/register`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
 
@@ -976,6 +986,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<void, any>({
         path: `/auth/verify-email`,
         method: 'GET',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerCheckCode
+     * @request POST:/auth/check-code
+     */
+    authControllerCheckCode: (data: CheckCodeDto, params: RequestParams = {}) =>
+      this.request<RegisterResponseDto, any>({
+        path: `/auth/check-code`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
         ...params,
       }),
   };

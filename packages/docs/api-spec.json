@@ -1028,7 +1028,7 @@
         "parameters": [],
         "responses": {
           "201": {
-            "description": "User successfully registered",
+            "description": "User successfully login",
             "content": {
               "application/json": {
                 "schema": {
@@ -1058,8 +1058,15 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1074,6 +1081,37 @@
         "responses": {
           "200": {
             "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/check-code": {
+      "post": {
+        "operationId": "AuthController_checkCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully check code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -1270,6 +1308,32 @@
           "email",
           "password",
           "name"
+        ]
+      },
+      "RegisterResponseDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      },
+      "CheckCodeDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "_id"
         ]
       }
     }

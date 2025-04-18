@@ -52,9 +52,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     session({ session, token }) {
-      (session.user as User) = token.user as any;
+      (session.user as User) = (token.user as any)?.data as User;
 
       return session;
+    },
+    authorized: async ({ auth }) => {
+      return !!auth;
     },
   },
 });

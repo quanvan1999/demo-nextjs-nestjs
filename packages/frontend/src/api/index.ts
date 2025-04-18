@@ -6,5 +6,5 @@ export * from './sdk';
 
 export const client = new Api({
   format: 'json',
-  baseURL: BASE_URL,
+  baseURL: `${BASE_URL}/api/v1`,
 });

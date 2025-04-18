@@ -41,3 +41,19 @@ export class UserLoginDto {
   @ApiProperty()
   password: string;
 }
+
+export class RegisterResponseDto {
+  @IsString()
+  @ApiProperty()
+  _id: string;
+}
+
+export class CheckCodeDto {
+  @IsString()
+  @ApiProperty()
+  code: string;
+
+  @IsString()
+  @ApiProperty()
+  _id: string;
+}

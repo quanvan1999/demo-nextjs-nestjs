@@ -10,8 +10,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import { toast } from 'sonner';
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -22,9 +23,10 @@ type SignInFormData = z.infer<typeof signInSchema>;
 
 const SignInUI = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -36,7 +38,6 @@ const SignInUI = () => {
 
   const handleSubmit = async (data: SignInFormData) => {
     try {
-      setError(null);
       setIsLoading(true);
 
       const result = await signIn('credentials', {
@@ -45,24 +46,24 @@ const SignInUI = () => {
         redirect: false,
       });
 
-      console.log(result);
-
-      if (!result) {
-        setError('Authentication failed. Please try again.');
-        return;
-      }
+      if (!result) return;
 
       if (result.code) {
-        setError(result.code);
+        toast.error(result.code);
+
+        if (result.code === 'Account not verified') {
+          router.push('/verify');
+        }
+
         return;
       }
 
-      // if (result.ok) {
-      //   router.push('/dashboard');
-      // }
+      if (result.ok) {
+        router.push(callbackUrl);
+      }
     } catch (error: any) {
       console.error('Sign in error:', error);
-      setError('An unexpected error occurred. Please try again.');
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -148,8 +149,6 @@ const SignInUI = () => {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
-
-            {error && <div className="mt-2 text-center text-sm text-destructive">{error}</div>}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

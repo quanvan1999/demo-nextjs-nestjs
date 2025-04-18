@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
+import { AccountDropdown } from './account';
+import { Session } from 'next-auth';
 
 const navigationItems = [
   { name: 'Dashboard', href: '/dashboard' },
@@ -13,7 +15,11 @@ const navigationItems = [
   { name: 'Settings', href: '/dashboard/settings' },
 ];
 
-export const Sidebar = () => {
+interface SidebarProps {
+  session: Session;
+}
+
+export const Sidebar = ({ session }: SidebarProps) => {
   const pathname = usePathname();
 
   return (
@@ -39,6 +45,7 @@ export const Sidebar = () => {
             </Link>
           ))}
         </nav>
+        <AccountDropdown session={session} />
       </div>
     </aside>
   );

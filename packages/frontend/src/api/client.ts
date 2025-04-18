@@ -42,6 +42,7 @@ export const getConfig = () => _config;
 
 export const setConfig = (config: Partial<RequestConfig>) => {
   _config = config;
+
   return getConfig();
 };
 
