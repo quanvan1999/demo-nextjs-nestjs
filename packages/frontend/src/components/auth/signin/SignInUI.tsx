@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
+import ReactiveModal from './ReactiveModal';
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -27,7 +28,7 @@ const SignInUI = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-
+  const [isOpen, setIsOpen] = useState(false);
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -52,7 +53,7 @@ const SignInUI = () => {
         toast.error(result.code);
 
         if (result.code === 'Account not verified') {
-          router.push('/verify');
+          setIsOpen(true);
         }
 
         return;
@@ -175,6 +176,7 @@ const SignInUI = () => {
           </form>
         </Form>
       </div>
+      <ReactiveModal isOpen={isOpen} onClose={() => setIsOpen(false)} initEmail={form.getValues('email')} />
     </div>
   );
 };

@@ -53,7 +53,21 @@ export class CheckCodeDto {
   @ApiProperty()
   code: string;
 
-  @IsString()
-  @ApiProperty()
-  _id: string;
+  @IsOptional()
+  @ApiProperty({ required: false })
+  _id?: string;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  email?: string;
+}
+
+export class ResendCodeDto {
+  @IsOptional()
+  @ApiProperty({ required: false })
+  _id?: string;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  email?: string;
 }

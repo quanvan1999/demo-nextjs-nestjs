@@ -1118,6 +1118,37 @@
           "Auth"
         ]
       }
+    },
+    "/auth/resend-code": {
+      "post": {
+        "operationId": "AuthController_resendCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully resend code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
     }
   },
   "info": {
@@ -1329,12 +1360,25 @@
           },
           "_id": {
             "type": "string"
+          },
+          "email": {
+            "type": "string"
           }
         },
         "required": [
-          "code",
-          "_id"
+          "code"
         ]
+      },
+      "ResendCodeDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
       }
     }
   }

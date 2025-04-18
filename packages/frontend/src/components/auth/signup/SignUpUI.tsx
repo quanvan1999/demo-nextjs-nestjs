@@ -65,8 +65,6 @@ const SignUpUI = () => {
         name: data.name,
       });
 
-      console.log(user);
-
       if (!user || !user._id) return;
 
       router.push(`/verify/${user._id}`);

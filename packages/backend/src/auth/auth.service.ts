@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '@/modules/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { comparePassword } from '@/utils';
-import { CheckCodeDto, CreateAuthDto, UserLoginDto } from './dto/create-auth.dto';
+import { CheckCodeDto, CreateAuthDto, ResendCodeDto, UserLoginDto } from './dto/create-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -44,5 +44,9 @@ export class AuthService {
 
   async checkCode(checkCodeDto: CheckCodeDto) {
     return this.userService.checkCode(checkCodeDto);
+  }
+
+  async resendCode(resendCodeDto: ResendCodeDto) {
+    return this.userService.resendCode(resendCodeDto);
   }
 }

@@ -6,7 +6,7 @@ import { User } from './schemas/user.schema';
 import { Model, isValidObjectId } from 'mongoose';
 import { hashPassword } from '@/utils';
 import aqp from 'api-query-params';
-import { CheckCodeDto, CreateAuthDto } from '@/auth/dto/create-auth.dto';
+import { CheckCodeDto, CreateAuthDto, ResendCodeDto } from '@/auth/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -128,15 +128,58 @@ export class UsersService {
   }
 
   async checkCode(checkCodeDto: CheckCodeDto) {
-    const { code, _id } = checkCodeDto;
+    const { code, _id, email } = checkCodeDto;
 
-    const user = await this.userModel.findOne({ _id, codeId: code });
+    if (_id && !isValidObjectId(_id)) throw new BadRequestException('Invalid user id');
+
+    console.log(code);
+
+    const user = await this.userModel.findOne(_id ? { _id, codeId: code } : { email, codeId: code });
 
     if (!user) {
       throw new BadRequestException('Invalid code');
     }
 
-    await this.userModel.updateOne({ _id }, { isActive: true });
+    if (user.isActive) throw new BadRequestException('User already activated');
+
+    const isBeforeCheck = dayjs().isBefore(user.codeExpired);
+
+    if (!isBeforeCheck) {
+      throw new BadRequestException('Code expired');
+    }
+
+    await this.userModel.updateOne({ _id: user._id }, { isActive: true, codeId: null, codeExpired: null });
+
+    return {
+      _id: user._id,
+    };
+  }
+
+  async resendCode(checkCodeDto: ResendCodeDto) {
+    const { _id, email } = checkCodeDto;
+
+    if (_id && !isValidObjectId(_id)) throw new BadRequestException('Invalid user id');
+
+    const user = await this.userModel.findOne(_id ? { _id } : { email });
+
+    if (!user) throw new BadRequestException('User not found');
+
+    if (user.isActive) throw new BadRequestException('User already activated');
+
+    const newCode = uuidv4();
+
+    await this.userModel.updateOne({ _id: user._id }, { codeId: newCode, codeExpired: dayjs().add(5, 'minutes') });
+
+    this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Activate your account',
+      template: 'register',
+      context: {
+        name: user.name,
+        activationCode: newCode,
+        _id: user._id,
+      },
+    });
 
     return {
       _id: user._id,

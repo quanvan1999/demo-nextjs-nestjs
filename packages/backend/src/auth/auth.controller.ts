@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { Public } from './decorator/customize';
-import { CheckCodeDto, CreateAuthDto, RegisterResponseDto, UserLoginDto } from './dto/create-auth.dto';
+import { CheckCodeDto, CreateAuthDto, RegisterResponseDto, ResendCodeDto, UserLoginDto } from './dto/create-auth.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResponseMessage } from '@/decorator/customize';
@@ -65,5 +65,17 @@ export class AuthController {
   })
   checkCode(@Body() checkCodeDto: CheckCodeDto) {
     return this.authService.checkCode(checkCodeDto);
+  }
+
+  @Post('resend-code')
+  @Public()
+  @ResponseMessage('Resend code successfully')
+  @ApiResponse({
+    status: 201,
+    description: 'User successfully resend code',
+    type: RegisterResponseDto,
+  })
+  resendCode(@Body() resendCodeDto: ResendCodeDto) {
+    return this.authService.resendCode(resendCodeDto);
   }
 }

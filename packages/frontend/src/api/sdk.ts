@@ -79,7 +79,13 @@ export interface RegisterResponseDto {
 
 export interface CheckCodeDto {
   code: string;
-  _id: string;
+  _id?: string;
+  email?: string;
+}
+
+export interface ResendCodeDto {
+  _id?: string;
+  email?: string;
 }
 
 import axios, { AxiosInstance, AxiosRequestConfig, HeadersDefaults, ResponseType } from 'axios';
@@ -999,6 +1005,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     authControllerCheckCode: (data: CheckCodeDto, params: RequestParams = {}) =>
       this.request<RegisterResponseDto, any>({
         path: `/auth/check-code`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerResendCode
+     * @request POST:/auth/resend-code
+     */
+    authControllerResendCode: (data: ResendCodeDto, params: RequestParams = {}) =>
+      this.request<RegisterResponseDto, any>({
+        path: `/auth/resend-code`,
         method: 'POST',
         body: data,
         type: ContentType.Json,

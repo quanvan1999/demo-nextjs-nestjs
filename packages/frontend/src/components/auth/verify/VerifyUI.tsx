@@ -10,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { CheckCodeDto, client, request } from '@/api';
-import { BASE_URL } from '@/constants';
+import { client } from '@/api';
+import Link from 'next/link';
 
 const verifySchema = z.object({
   code: z.string().min(1, 'Verification code is required'),
@@ -39,18 +39,31 @@ const VerifyUI = ({ id }: { id: string }) => {
         code: data.code,
       });
 
-      console.log(user);
-
-      if (!user) {
-        toast.error('Invalid verification code. Please try again.');
-        return;
-      }
+      if (!user) return;
 
       toast.success('Account verified successfully!');
 
-      // router.push('/auth/signin');
+      router.push('/auth/signin');
     } catch (error) {
       toast.error('Invalid verification code. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    try {
+      setIsLoading(true);
+
+      const user = await client.auth.authControllerResendCode({
+        _id: id,
+      });
+
+      if (!user) return;
+
+      toast.success('Verification code resent!');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Failed to resend verification code. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +87,7 @@ const VerifyUI = ({ id }: { id: string }) => {
                   <FormLabel className="text-sm">Verification code</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="123456"
+                      placeholder="Enter the verification code"
                       className={cn('text-center tracking-widest', {
                         'border-destructive': form.formState.errors.code,
                       })}
@@ -90,19 +103,27 @@ const VerifyUI = ({ id }: { id: string }) => {
               {isLoading ? 'Verifying...' : 'Verify account'}
             </Button>
 
-            <p className="text-center text-sm text-muted-foreground">
-              Didn't receive a code?{' '}
-              <button
-                type="button"
-                className="font-medium text-primary hover:text-primary/90"
-                onClick={() => {
-                  // TODO: Implement resend code logic
-                  toast.info('Verification code resent!');
-                }}
-              >
-                Resend code
-              </button>
-            </p>
+            <div className="space-y-4 flex flex-col items-center">
+              <p className="text-center text-sm text-muted-foreground">
+                Didn't receive a code?{' '}
+                <button
+                  type="button"
+                  className="font-medium text-primary hover:text-primary/90"
+                  onClick={handleResendCode}
+                >
+                  Resend code
+                </button>
+              </p>
+
+              <div>
+                <Link
+                  className="w-full text-center block text-sm text-primary hover:text-primary/90"
+                  href="/auth/signin"
+                >
+                  Back to Sign In
+                </Link>
+              </div>
+            </div>
           </form>
         </Form>
       </div>
