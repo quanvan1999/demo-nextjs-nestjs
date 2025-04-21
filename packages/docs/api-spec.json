@@ -38,8 +38,32 @@
           "Users"
         ]
       },
+      "patch": {
+        "operationId": "UsersController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/get-users": {
       "get": {
-        "operationId": "UsersController_findAll",
+        "operationId": "UsersController_GetUser",
         "parameters": [
           {
             "name": "current",
@@ -60,29 +84,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Users"
-        ]
-      },
-      "patch": {
-        "operationId": "UsersController_update",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserDto"
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUsersResponseDto"
+                }
               }
             }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
           }
         },
         "tags": [
@@ -1260,6 +1269,81 @@
           "phone",
           "address",
           "image"
+        ]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "accountType": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "email",
+          "phone",
+          "address",
+          "image",
+          "role",
+          "accountType",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "GetUsersResponseDto": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserResponseDto"
+            }
+          },
+          "totalPages": {
+            "type": "number"
+          },
+          "totalItems": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "result",
+          "totalPages",
+          "totalItems"
         ]
       },
       "UpdateUserDto": {

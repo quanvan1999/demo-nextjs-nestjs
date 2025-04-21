@@ -11,6 +11,9 @@ import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ResetPasswordDto } from '@/auth/dto/update-auth.dto';
+import { GetUsersResponseDto } from './dto/get-users-response.dto';
+import { UserResponseDto } from './dto/user-response.dto';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -46,7 +49,7 @@ export class UsersService {
     };
   }
 
-  async findAll(query: string, current: number, pageSize: number) {
+  async getUsers(query: string, current: number, pageSize: number): Promise<GetUsersResponseDto> {
     const { filter, sort } = aqp(query);
 
     if (filter.current) delete filter.current;
@@ -59,12 +62,26 @@ export class UsersService {
     const totalPages = Math.ceil(totalItems / pageSize);
     const skip = (current - 1) * pageSize;
 
-    const result = await this.userModel
+    const users = await this.userModel
       .find(filter)
       .limit(pageSize)
       .skip(skip)
       .select('-password')
       .sort(sort as any);
+
+    const result = users.map(user => ({
+      _id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      image: user.image,
+      role: user.role,
+      accountType: user.accountType,
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    })) as UserResponseDto[];
 
     return { result, totalPages, totalItems };
   }

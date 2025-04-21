@@ -18,6 +18,28 @@ export interface CreateUserDto {
   image: string;
 }
 
+export interface UserResponseDto {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  image: string;
+  role: string;
+  accountType: string;
+  isActive: boolean;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+}
+
+export interface GetUsersResponseDto {
+  result: UserResponseDto[];
+  totalPages: number;
+  totalItems: number;
+}
+
 export interface UpdateUserDto {
   _id: string;
   name: string;
@@ -59,11 +81,7 @@ export type CreateReviewDto = object;
 export type UpdateReviewDto = object;
 
 export interface UserLoginDto {
-  _id: string;
   email: string;
-  name: string;
-  role: string;
-  access_token: string;
   password: string;
 }
 
@@ -86,6 +104,18 @@ export interface CheckCodeDto {
 export interface ResendCodeDto {
   _id?: string;
   email?: string;
+}
+
+export interface ResendPasswordDto {
+  _id?: string;
+  email?: string;
+}
+
+export interface ResetPasswordDto {
+  code: string;
+  password: string;
+  confirmPassword: string;
+  email: string;
 }
 
 import axios, { AxiosInstance, AxiosRequestConfig, HeadersDefaults, ResponseType } from 'axios';
@@ -275,27 +305,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags Users
-     * @name UsersControllerFindAll
-     * @request GET:/users
-     */
-    usersControllerFindAll: (
-      query: {
-        current: string;
-        pageSize: string;
-      },
-      params: RequestParams = {},
-    ) =>
-      this.request<void, any>({
-        path: `/users`,
-        method: 'GET',
-        query: query,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Users
      * @name UsersControllerUpdate
      * @request PATCH:/users
      */
@@ -305,6 +314,28 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: 'PATCH',
         body: data,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Users
+     * @name UsersControllerGetUser
+     * @request GET:/users/get-users
+     */
+    usersControllerGetUser: (
+      query: {
+        current: string;
+        pageSize: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<GetUsersResponseDto, any>({
+        path: `/users/get-users`,
+        method: 'GET',
+        query: query,
+        format: 'json',
         ...params,
       }),
 
@@ -1022,6 +1053,40 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     authControllerResendCode: (data: ResendCodeDto, params: RequestParams = {}) =>
       this.request<RegisterResponseDto, any>({
         path: `/auth/resend-code`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerResendPassword
+     * @request POST:/auth/resend-password
+     */
+    authControllerResendPassword: (data: ResendPasswordDto, params: RequestParams = {}) =>
+      this.request<RegisterResponseDto, any>({
+        path: `/auth/resend-password`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Auth
+     * @name AuthControllerResetPassword
+     * @request POST:/auth/reset-password
+     */
+    authControllerResetPassword: (data: ResetPasswordDto, params: RequestParams = {}) =>
+      this.request<RegisterResponseDto, any>({
+        path: `/auth/reset-password`,
         method: 'POST',
         body: data,
         type: ContentType.Json,

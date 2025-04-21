@@ -3,6 +3,8 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { GetAPI } from '@/decorator/custom.decorators';
+import { GetUsersResponseDto } from './dto/get-users-response.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -14,9 +16,13 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Get()
-  async findAll(@Query() query: string, @Query('current') current: string, @Query('pageSize') pageSize: string) {
-    return this.usersService.findAll(query, +current, +pageSize);
+  @GetAPI('get-users', { type: GetUsersResponseDto })
+  async GetUser(
+    @Query() query: string,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+  ): Promise<GetUsersResponseDto> {
+    return this.usersService.getUsers(query, +current, +pageSize);
   }
 
   @Get(':id')

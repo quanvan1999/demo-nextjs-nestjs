@@ -11,9 +11,9 @@ export default async function Layout({ children }: { children: React.ReactNode }
     <div className="flex min-h-screen flex-col bg-background text-foreground transition-colors duration-200">
       <div className="flex flex-1">
         <Sidebar session={session} />
-        <main className="flex-1 pl-64">
-          <div className="h-full min-h-screen flex flex-col">
-            <div className="flex-1">{children}</div>
+        <main className="flex-1 pl-64 flex flex-col">
+          <div className="h-full min-h-screen flex flex-col flex-1">
+            <div className="flex-1 flex flex-col">{children}</div>
             <Footer />
           </div>
         </main>
