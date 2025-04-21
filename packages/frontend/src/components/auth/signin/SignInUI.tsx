@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
 import ReactiveModal from './ReactiveModal';
+import UpdatePasswordModal from './UpdatePasswordModal';
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -28,7 +29,7 @@ const SignInUI = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-  const [isOpen, setIsOpen] = useState(false);
+  const [modal, setModal] = useState<'reactive' | 'update-password' | null>(null);
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -53,7 +54,7 @@ const SignInUI = () => {
         toast.error(result.code);
 
         if (result.code === 'Account not verified') {
-          setIsOpen(true);
+          setModal('reactive');
         }
 
         return;
@@ -141,9 +142,14 @@ const SignInUI = () => {
               />
 
               <div className="flex items-center justify-between">
-                <Link href="/forgot-password" className="text-xs font-medium text-primary hover:text-primary/90">
+                <Button
+                  variant="link"
+                  type="button"
+                  onClick={() => setModal('update-password')}
+                  className="text-xs p-0 font-medium text-primary hover:text-primary/90"
+                >
                   Forgot password?
-                </Link>
+                </Button>
               </div>
             </div>
 
@@ -176,7 +182,12 @@ const SignInUI = () => {
           </form>
         </Form>
       </div>
-      <ReactiveModal isOpen={isOpen} onClose={() => setIsOpen(false)} initEmail={form.getValues('email')} />
+      <ReactiveModal isOpen={modal === 'reactive'} onClose={() => setModal(null)} initEmail={form.getValues('email')} />
+      <UpdatePasswordModal
+        isOpen={modal === 'update-password'}
+        onClose={() => setModal(null)}
+        initEmail={form.getValues('email')}
+      />
     </div>
   );
 };

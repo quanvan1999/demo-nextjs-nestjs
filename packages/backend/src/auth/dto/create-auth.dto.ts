@@ -19,6 +19,16 @@ export class CreateAuthDto {
 export class UserLoginDto {
   @IsString()
   @ApiProperty()
+  email: string;
+
+  @IsString()
+  @ApiProperty()
+  password: string;
+}
+
+export class UserLoginResponseDto {
+  @IsString()
+  @ApiProperty()
   _id: string;
 
   @IsString()
@@ -63,6 +73,16 @@ export class CheckCodeDto {
 }
 
 export class ResendCodeDto {
+  @IsOptional()
+  @ApiProperty({ required: false })
+  _id?: string;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  email?: string;
+}
+
+export class ResendPasswordDto {
   @IsOptional()
   @ApiProperty({ required: false })
   _id?: string;

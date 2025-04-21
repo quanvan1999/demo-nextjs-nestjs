@@ -1,12 +1,21 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { Public } from './decorator/customize';
-import { CheckCodeDto, CreateAuthDto, RegisterResponseDto, ResendCodeDto, UserLoginDto } from './dto/create-auth.dto';
+import {
+  CheckCodeDto,
+  CreateAuthDto,
+  RegisterResponseDto,
+  ResendCodeDto,
+  ResendPasswordDto,
+  UserLoginDto,
+  UserLoginResponseDto,
+} from './dto/create-auth.dto';
 import { MailerService } from '@nestjs-modules/mailer';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { ResponseMessage } from '@/decorator/customize';
 import { PostAPI } from '@/decorator/custom.decorators';
+import { ResetPasswordDto } from './dto/update-auth.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -16,16 +25,10 @@ export class AuthController {
     private readonly mailerService: MailerService,
   ) {}
 
-  @Post('login')
-  @Public()
   @UseGuards(LocalAuthGuard)
-  @ResponseMessage('Login successfully')
-  @ApiResponse({
-    status: 201,
-    description: 'User successfully login',
-    type: UserLoginDto,
-  })
-  async handleLogin(@Request() { user }: { user: UserLoginDto }) {
+  @PostAPI('login', { type: UserLoginDto })
+  @Public()
+  async handleLogin(@Request() { user }: { user: UserLoginResponseDto }) {
     return this.authService.login(user);
   }
 
@@ -55,27 +58,31 @@ export class AuthController {
     }
   }
 
-  @Post('check-code')
+  @PostAPI('check-code', { type: RegisterResponseDto })
   @Public()
   @ResponseMessage('Check code successfully')
-  @ApiResponse({
-    status: 201,
-    description: 'User successfully check code',
-    type: RegisterResponseDto,
-  })
   checkCode(@Body() checkCodeDto: CheckCodeDto) {
     return this.authService.checkCode(checkCodeDto);
   }
 
-  @Post('resend-code')
+  @PostAPI('resend-code', { type: RegisterResponseDto })
   @Public()
   @ResponseMessage('Resend code successfully')
-  @ApiResponse({
-    status: 201,
-    description: 'User successfully resend code',
-    type: RegisterResponseDto,
-  })
   resendCode(@Body() resendCodeDto: ResendCodeDto) {
     return this.authService.resendCode(resendCodeDto);
+  }
+
+  @PostAPI('resend-password', { type: RegisterResponseDto })
+  @Public()
+  @ResponseMessage('Resend password successfully')
+  resendPassword(@Body() resendPasswordDto: ResendPasswordDto) {
+    return this.authService.resendPassword(resendPasswordDto);
+  }
+
+  @PostAPI('reset-password', { type: RegisterResponseDto })
+  @Public()
+  @ResponseMessage('Reset password successfully')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

@@ -1,24 +1,28 @@
 'use client';
 
-import { setConfig } from '@/api';
-import { BASE_URL } from '@/constants';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from 'next-auth/react';
-import React, { useEffect } from 'react';
+import React from 'react';
 
 type Props = {
   children: React.ReactNode;
 };
 
 const Providers = ({ children }: Props) => {
-  useEffect(() => {
-    setConfig({
-      baseURL: `${BASE_URL}/api/v1`,
-      //   onRequest: intercepRequest,
-      //   onError: intercepError(instance) as any,
-    });
-  }, []);
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        retry: 1,
+      },
+    },
+  });
 
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </SessionProvider>
+  );
 };
 
 export default Providers;

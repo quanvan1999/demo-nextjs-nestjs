@@ -11,6 +11,11 @@ export default auth(req => {
     const newUrl = new URL('/auth/signin', req.nextUrl.origin);
     newUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
     return Response.redirect(newUrl);
+  } else {
+    if (req.nextUrl.pathname.includes('/auth/signin')) {
+      const newUrl = new URL('/dashboard', req.nextUrl.origin);
+      return Response.redirect(newUrl);
+    }
   }
 });
 

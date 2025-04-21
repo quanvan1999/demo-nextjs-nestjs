@@ -1,7 +1,6 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { InvalidCredentialsError } from './utils/errors';
-import { request } from './api';
 import { BASE_URL } from './constants';
 import { User } from './types/next-auth';
 
@@ -17,13 +16,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const user = await request<User>({
+        const user = await fetch<User>(`${BASE_URL}/api/v1/auth/login`, {
           method: 'POST',
-          url: `${BASE_URL}/api/v1/auth/login`,
-          data: {
+          body: JSON.stringify({
             email: credentials.email,
             password: credentials.password,
-          },
+          }),
         });
 
         if (user.status === 401) {
@@ -52,7 +50,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     session({ session, token }) {
-      (session.user as User) = (token.user as any)?.data as User;
+      (session.user as User) = token.user as User;
 
       return session;
     },

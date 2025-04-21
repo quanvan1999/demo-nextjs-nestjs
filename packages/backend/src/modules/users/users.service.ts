@@ -6,11 +6,11 @@ import { User } from './schemas/user.schema';
 import { Model, isValidObjectId } from 'mongoose';
 import { hashPassword } from '@/utils';
 import aqp from 'api-query-params';
-import { CheckCodeDto, CreateAuthDto, ResendCodeDto } from '@/auth/dto/create-auth.dto';
+import { CheckCodeDto, CreateAuthDto, ResendCodeDto, ResendPasswordDto } from '@/auth/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
-
+import { ResetPasswordDto } from '@/auth/dto/update-auth.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -132,8 +132,6 @@ export class UsersService {
 
     if (_id && !isValidObjectId(_id)) throw new BadRequestException('Invalid user id');
 
-    console.log(code);
-
     const user = await this.userModel.findOne(_id ? { _id, codeId: code } : { email, codeId: code });
 
     if (!user) {
@@ -177,9 +175,61 @@ export class UsersService {
       context: {
         name: user.name,
         activationCode: newCode,
-        _id: user._id,
+        currentYear: dayjs().year(),
       },
     });
+
+    return {
+      _id: user._id,
+    };
+  }
+
+  async resendPassword(resendPasswordDto: ResendPasswordDto) {
+    const { _id, email } = resendPasswordDto;
+
+    if (_id && !isValidObjectId(_id)) throw new BadRequestException('Invalid user id');
+
+    const user = await this.userModel.findOne(_id ? { _id } : { email });
+
+    if (!user) throw new BadRequestException('User not found');
+
+    const codeId = uuidv4();
+
+    await this.userModel.updateOne({ _id: user._id }, { codeId, codeExpired: dayjs().add(5, 'minutes') });
+
+    this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Reset your password',
+      template: 'reset-password',
+      context: {
+        name: user.name,
+        resetCode: codeId,
+        currentYear: dayjs().year(),
+      },
+    });
+
+    return {
+      _id: user._id,
+      email: user.email,
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { code, password, email, confirmPassword } = resetPasswordDto;
+
+    if (password !== confirmPassword) throw new BadRequestException('Password and confirm password do not match');
+
+    const user = await this.userModel.findOne({ codeId: code, email });
+
+    if (!user) throw new BadRequestException('Invalid code');
+
+    const isBeforeCheck = dayjs().isBefore(user.codeExpired);
+
+    if (!isBeforeCheck) throw new BadRequestException('Code expired');
+
+    const newPassword = await hashPassword(password);
+
+    await this.userModel.updateOne({ _id: user._id }, { password: newPassword, codeId: null, codeExpired: null });
 
     return {
       _id: user._id,

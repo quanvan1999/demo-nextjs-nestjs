@@ -1027,8 +1027,8 @@
         "operationId": "AuthController_handleLogin",
         "parameters": [],
         "responses": {
-          "201": {
-            "description": "User successfully login",
+          "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1103,8 +1103,8 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "User successfully check code",
+          "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1134,8 +1134,70 @@
           }
         },
         "responses": {
-          "201": {
-            "description": "User successfully resend code",
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/resend-password": {
+      "post": {
+        "operationId": "AuthController_resendPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1294,19 +1356,7 @@
       "UserLoginDto": {
         "type": "object",
         "properties": {
-          "_id": {
-            "type": "string"
-          },
           "email": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string"
-          },
-          "access_token": {
             "type": "string"
           },
           "password": {
@@ -1314,11 +1364,7 @@
           }
         },
         "required": [
-          "_id",
           "email",
-          "name",
-          "role",
-          "access_token",
           "password"
         ]
       },
@@ -1379,6 +1425,40 @@
             "type": "string"
           }
         }
+      },
+      "ResendPasswordDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "confirmPassword": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "password",
+          "confirmPassword",
+          "email"
+        ]
       }
     }
   }
