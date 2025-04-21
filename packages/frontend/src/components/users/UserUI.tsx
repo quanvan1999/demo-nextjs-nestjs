@@ -1,11 +1,10 @@
 'use client';
 
 import { client } from '@/api';
-import { intercepError, intercepRequest } from '@/api/interceptor';
 import { Button } from '@/components/ui/button';
 import { User } from '@/components/users/users-table';
+import { useApi } from '@/lib/api-client';
 import { useQuery } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
 import { useSession } from 'next-auth/react';
 
 const users: User[] = [
@@ -15,11 +14,15 @@ const users: User[] = [
 ];
 
 export const UserUI = () => {
-  const { data: session } = useSession();
+  const { getApiClient } = useApi();
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
-    queryFn: () => client.users.usersControllerFindAll({ current: '1', pageSize: '10' }),
+    queryFn: async () => {
+      const apiClient = await getApiClient();
+
+      return await apiClient.users.usersControllerFindAll({ current: '1', pageSize: '10' });
+    },
   });
 
   console.log(users);
